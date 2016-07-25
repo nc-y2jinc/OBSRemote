@@ -1,6 +1,7 @@
 /********************************************************************************
  Copyright (C) 2013 Hugh Bailey <obs.jim@gmail.com>
  Copyright (C) 2013 William Hamilton <bill@ecologylab.net>
+ Copyright (C) 2016 NCSOFT Corporation
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -45,6 +46,9 @@
 #define REQ_GET_VOLUMES "GetVolumes"
 #define REQ_SET_VOLUME "SetVolume"
 
+// added by y2jinc - 2016 / 7 / 22
+#define REQ_SET_STREAMKEY	"SetStreamKey"
+
 struct OBSAPIMessageHandler;
 
 typedef json_t*(*MessageFunction)(OBSAPIMessageHandler*, json_t*);
@@ -83,6 +87,7 @@ struct OBSAPIMessageHandler
     static json_t* HandleToggleMute(OBSAPIMessageHandler* handler, json_t* message);
     static json_t* HandleGetVolumes(OBSAPIMessageHandler* handler, json_t* message);
     static json_t* HandleSetVolume(OBSAPIMessageHandler* handler, json_t* message);
+	static json_t* HandleSetStreamKey(OBSAPIMessageHandler* handler, json_t* message); // added by y2jinc - 2016 / 7 / 22
 
     struct libwebsocket *wsi;
     

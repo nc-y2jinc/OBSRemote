@@ -1,6 +1,7 @@
 /********************************************************************************
  Copyright (C) 2013 Hugh Bailey <obs.jim@gmail.com>
  Copyright (C) 2013 William Hamilton <bill@ecologylab.net>
+ Copyright (C) 2016 NCSOFT Corporation
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,6 +38,7 @@ void OBSAPIMessageHandler::initializeMessageMap()
     messageMap[REQ_TOGGLE_MUTE] =                       OBSAPIMessageHandler::HandleToggleMute;
     messageMap[REQ_GET_VOLUMES] =                       OBSAPIMessageHandler::HandleGetVolumes;
     messageMap[REQ_SET_VOLUME] =                        OBSAPIMessageHandler::HandleSetVolume;
+	messageMap[REQ_SET_STREAMKEY] =						OBSAPIMessageHandler::HandleSetStreamKey;	// added by y2jinc - 2016 / 7 / 22
 
     messagesNotRequiringAuth.insert(REQ_GET_VERSION);
     messagesNotRequiringAuth.insert(REQ_GET_AUTH_REQUIRED);
@@ -500,6 +502,26 @@ json_t* OBSAPIMessageHandler::HandleSetVolume(OBSAPIMessageHandler* handler, jso
         return GetErrorResponse("Channel not specified.");
     }
     return GetOkResponse();
+}
+
+
+// added by y2jinc - 2016 / 7 / 22
+json_t* OBSAPIMessageHandler::HandleSetStreamKey(OBSAPIMessageHandler* handler, json_t* message)
+{
+	json_t* stream_key = json_object_get(message, "stream-key");
+	if (stream_key != NULL && json_typeof(stream_key) == JSON_STRING)
+	{
+		TSTR pStream_keyVal = utf8_createTstr(json_string_value(stream_key));
+		OBSSetStreamKey(pStream_keyVal);
+		Free(pStream_keyVal);
+		pStream_keyVal = NULL;
+	}
+	else
+	{
+		return GetErrorResponse("invalid stream-key type.");
+	}
+
+	return GetOkResponse();
 }
 
 /* OBS Trigger Handler */
