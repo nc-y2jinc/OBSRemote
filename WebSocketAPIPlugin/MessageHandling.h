@@ -48,6 +48,13 @@
 
 // added by y2jinc - 2016 / 7 / 22
 #define REQ_SET_STREAMKEY	"SetStreamKey"
+//////////////////////////////////////////////////////////////////////////
+// added by y2jinc 2016. 8. 19.
+#define REQ_GET_CAMDEVICE_INFO	"GetCamDeviceInfo"
+#define REQ_SET_CAMDEVICE		"SetCamDevice"
+#define REQ_SET_CAMPOSALIGNMENT "SetCamPosAlignment"
+#define REQ_GET_CAMPOSALIGNMENT	"GetCamPosAlignment"
+//////////////////////////////////////////////////////////////////////////
 
 struct OBSAPIMessageHandler;
 
@@ -87,7 +94,11 @@ struct OBSAPIMessageHandler
     static json_t* HandleToggleMute(OBSAPIMessageHandler* handler, json_t* message);
     static json_t* HandleGetVolumes(OBSAPIMessageHandler* handler, json_t* message);
     static json_t* HandleSetVolume(OBSAPIMessageHandler* handler, json_t* message);
-	static json_t* HandleSetStreamKey(OBSAPIMessageHandler* handler, json_t* message); // added by y2jinc - 2016 / 7 / 22
+	static json_t* HandleSetStreamKey(OBSAPIMessageHandler* handler, json_t* message);		// added by y2jinc - 2016 / 7 / 22
+	static json_t* HandleGetCamDeviceInfo(OBSAPIMessageHandler* handler, json_t* message);	// added by y2jinc - 2016 / 8 / 19
+	static json_t* HandleSetCamDevice(OBSAPIMessageHandler* handler, json_t* message);		// added by y2jinc - 2016 / 8 / 19
+	static json_t* HandleSetCamPosAlignment(OBSAPIMessageHandler* handler, json_t* message);// added by y2jinc - 2016 / 8 / 19
+	static json_t* HandleGetCamPosAlignment(OBSAPIMessageHandler* handler, json_t* message);// added by y2jinc - 2016 / 8 / 19
 
     struct libwebsocket *wsi;
     

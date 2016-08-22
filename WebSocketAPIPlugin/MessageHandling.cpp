@@ -38,7 +38,11 @@ void OBSAPIMessageHandler::initializeMessageMap()
     messageMap[REQ_TOGGLE_MUTE] =                       OBSAPIMessageHandler::HandleToggleMute;
     messageMap[REQ_GET_VOLUMES] =                       OBSAPIMessageHandler::HandleGetVolumes;
     messageMap[REQ_SET_VOLUME] =                        OBSAPIMessageHandler::HandleSetVolume;
-	messageMap[REQ_SET_STREAMKEY] =						OBSAPIMessageHandler::HandleSetStreamKey;	// added by y2jinc - 2016 / 7 / 22
+	messageMap[REQ_SET_STREAMKEY] =						OBSAPIMessageHandler::HandleSetStreamKey;		// added by y2jinc - 2016 / 7 / 22
+	messageMap[REQ_GET_CAMDEVICE_INFO] =				OBSAPIMessageHandler::HandleGetCamDeviceInfo;	// added by y2jinc - 2016 / 8 / 19
+	messageMap[REQ_SET_CAMDEVICE] =						OBSAPIMessageHandler::HandleSetCamDevice;		// added by y2jinc - 2016 / 8 / 19
+	messageMap[REQ_SET_CAMPOSALIGNMENT] =				OBSAPIMessageHandler::HandleSetCamPosAlignment;	// added by y2jinc - 2016 / 8 / 19
+	messageMap[REQ_GET_CAMPOSALIGNMENT] =				OBSAPIMessageHandler::HandleGetCamPosAlignment;	// added by y2jinc - 2016 / 8 / 19
 
     messagesNotRequiringAuth.insert(REQ_GET_VERSION);
     messagesNotRequiringAuth.insert(REQ_GET_AUTH_REQUIRED);
@@ -522,6 +526,95 @@ json_t* OBSAPIMessageHandler::HandleSetStreamKey(OBSAPIMessageHandler* handler, 
 	}
 
 	return GetOkResponse();
+}
+
+// added by y2jinc - 2016 / 8 / 19
+json_t* OBSAPIMessageHandler::HandleGetCamDeviceInfo(OBSAPIMessageHandler* handler, json_t* message)
+{
+	OBSEnterSceneMutex();
+
+	json_t* ret = GetOkResponse();
+
+	String curSelectedCamDeviceName;
+	StringList camDeviceNames;
+
+	OBSGetCamDeviceInfo(curSelectedCamDeviceName, camDeviceNames);
+
+	json_object_set_new(ret, "current-selected-cam-device", json_string_wchar(curSelectedCamDeviceName.Array()));
+
+	json_t* cam_devices = json_array();
+	for (unsigned int i = 0; i < camDeviceNames.Num(); i++)
+	{
+		json_array_append_new(cam_devices, json_string_wchar(camDeviceNames[i].Array()));
+	}
+	
+	json_object_set_new(ret, "cam-devices", cam_devices);
+
+	OBSLeaveSceneMutex();
+
+	return ret;
+}
+
+// added by y2jinc - 2016 / 8 / 19
+json_t* OBSAPIMessageHandler::HandleSetCamDevice(OBSAPIMessageHandler* handler, json_t* message)
+{
+	OBSEnterSceneMutex();
+
+	json_t* ret = GetOkResponse();
+
+	json_t* device_name = json_object_get(message, "device-name");
+	if (device_name == NULL || json_typeof(device_name) != JSON_STRING)
+	{
+		return GetErrorResponse("invalid param 'device-name'");
+	}
+
+	// set cam device
+	TSTR lpCamDeviceName = utf8_createTstr(json_string_value(device_name));
+	OBSSetCamDevice(lpCamDeviceName);
+	Free(lpCamDeviceName);
+	lpCamDeviceName = NULL;
+
+	OBSLeaveSceneMutex();
+
+	return ret;
+}
+
+// added by y2jinc - 2016 / 8 / 19
+json_t* OBSAPIMessageHandler::HandleSetCamPosAlignment(OBSAPIMessageHandler* handler, json_t* message)
+{
+	OBSEnterSceneMutex();
+
+	json_t* ret = GetOkResponse();
+
+	json_t* pos_alignment = json_object_get(message, "pos-alignment");
+	if (pos_alignment == NULL || json_typeof(pos_alignment) != JSON_STRING)
+	{
+		return GetErrorResponse("invalid param 'pos-alignment'");
+	}
+
+	TSTR lpCamPosAlignment = utf8_createTstr(json_string_value(pos_alignment));
+	OBSSetCamPosAlignment(lpCamPosAlignment);
+	Free(lpCamPosAlignment);
+	lpCamPosAlignment = NULL;
+
+	OBSLeaveSceneMutex();
+
+	return ret;
+}
+
+// added by y2jinc - 2016 / 8 / 19
+json_t* OBSAPIMessageHandler::HandleGetCamPosAlignment(OBSAPIMessageHandler* handler, json_t* message)
+{
+	OBSEnterSceneMutex();
+
+	json_t* ret = GetOkResponse();
+
+	CTSTR lpPosAlignment = OBSGetCamPosAlignment();
+	json_object_set_new(ret, "pos-alignment", json_string_wchar(lpPosAlignment));
+
+	OBSLeaveSceneMutex();
+
+	return ret;
 }
 
 /* OBS Trigger Handler */
